@@ -30,12 +30,12 @@ include_directories("${SDL2_ttf_INCLUDE_DIR}/SDL2" SYSTEM)
 # Source files #
 ################
 
-file(GLOB chord_SRC
+file(GLOB ascii_player_SRC
     "./src/main.cpp"
     "./src/SDL_FontCache.c")
 
 # Executables
-add_executable(ascii_player ${chord_SRC})
+add_executable(ascii_player ${ascii_player_SRC})
 
 # Libraries to link
 link_directories(${ffmpeg_LIBRARY}/lib)
