@@ -37,19 +37,19 @@ typedef struct SDLContext
 
 typedef struct FfmpegContext
 {
-  AVCodec* codec;
-  AVStream* stream;
-  AVFrame* decframe;
-  AVPacket* pkt;
-  AVFormatContext* input_ctx;
-  AVCodecContext* codec_ctx;
+    AVCodec* codec;
+    AVStream* stream;
+    AVFrame* decframe;
+    AVPacket* pkt;
+    AVFormatContext* input_ctx;
+    AVCodecContext* codec_ctx;
 
-  vector<uint8_t> framebuf;
+    vector<uint8_t> framebuf;
 
-  char* file = nullptr;
-  bool end_of_stream = false;
-  int got_image = 0;
-  int stream_idx;
+    char* file = nullptr;
+    bool end_of_stream = false;
+    int got_image = 0;
+    int stream_idx;
 }TFfmpegCtx;
 
 /* We keep additional cpaces at the end for cases when rounding results in a larger value */
