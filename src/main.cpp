@@ -198,7 +198,8 @@ int init_ffmpeg(TFfmpegCtx* ffmpegctx)
   }
 
   // Detect video stream
-  ffmpegctx->stream_idx = av_find_best_stream(ffmpegctx->input_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, &(ffmpegctx->codec), 0);
+  ffmpegctx->stream_idx = av_find_best_stream(ffmpegctx->input_ctx, AVMEDIA_TYPE_VIDEO, 
+                                                -1, -1, reinterpret_cast<const AVCodec**>(&(ffmpegctx->codec)), 0);
   if (ffmpegctx->stream_idx < 0) 
   {
       std::cerr << "Find best stream error: " << ret;
