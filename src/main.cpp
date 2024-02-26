@@ -67,42 +67,42 @@ static const float coeff = 256 / (float)(sizeof(characters) - 3);
  */
 static int init_ffmpeg(TFfmpegCtx* ffmpegctx, char* file_name)
 {
-  int ret = 0;
+    int ret = 0;
 
     ffmpegctx->file = file_name;
-  ffmpegctx->codec = nullptr;
-  ffmpegctx->stream = nullptr;
-  ffmpegctx->decframe = nullptr;
-  
-  ffmpegctx->end_of_stream = false;
-  ffmpegctx->got_image = 0;
+    ffmpegctx->codec = nullptr;
+    ffmpegctx->stream = nullptr;
+    ffmpegctx->decframe = nullptr;
+    
+    ffmpegctx->end_of_stream = false;
+    ffmpegctx->got_image = 0;
 
     /* Open file context */
-  ffmpegctx->input_ctx = nullptr;
-  if (avformat_open_input(&(ffmpegctx->input_ctx), ffmpegctx->file, nullptr, nullptr) < 0) 
-  {
-      std::cerr << "Avformat open error: " << ret;
-      return 2;
-  }
+    ffmpegctx->input_ctx = nullptr;
+    if (avformat_open_input(&(ffmpegctx->input_ctx), ffmpegctx->file, nullptr, nullptr) < 0) 
+    {
+        std::cerr << "Avformat open error: " << ret;
+        return 2;
+    }
 
     /* Get input stream info */
-  if (avformat_find_stream_info(ffmpegctx->input_ctx, nullptr) < 0) 
-  {
-      std::cerr << "Find stream info error: " << ret;
-      return 2;
-  }
+    if (avformat_find_stream_info(ffmpegctx->input_ctx, nullptr) < 0) 
+    {
+        std::cerr << "Find stream info error: " << ret;
+        return 2;
+    }
 
     /* Detect video stream */
-  ffmpegctx->stream_idx = av_find_best_stream(ffmpegctx->input_ctx, AVMEDIA_TYPE_VIDEO, 
-                                                -1, -1, (const AVCodec**)(&(ffmpegctx->codec)), 0);
-  if (ffmpegctx->stream_idx < 0) 
-  {
-      std::cerr << "Find best stream error: " << ret;
-      return 2;
-  }
-  
-  ffmpegctx->stream = ffmpegctx->input_ctx->streams[ffmpegctx->stream_idx];
-  
+    ffmpegctx->stream_idx = av_find_best_stream(ffmpegctx->input_ctx, AVMEDIA_TYPE_VIDEO, 
+                                                    -1, -1, (const AVCodec**)(&(ffmpegctx->codec)), 0);
+    if (ffmpegctx->stream_idx < 0) 
+    {
+        std::cerr << "Find best stream error: " << ret;
+        return 2;
+    }
+    
+    ffmpegctx->stream = ffmpegctx->input_ctx->streams[ffmpegctx->stream_idx];
+    
     ffmpegctx->codec_ctx = avcodec_alloc_context3(ffmpegctx->codec);
     if (!ffmpegctx->codec_ctx) {
         std::cout << "Error allocating codec context" << std::endl;
@@ -119,28 +119,28 @@ static int init_ffmpeg(TFfmpegCtx* ffmpegctx, char* file_name)
     }
 
     /* Open decoder context*/
-  if (avcodec_open2(ffmpegctx->codec_ctx, ffmpegctx->codec, nullptr) < 0) {
-      std::cerr << "Av codec open error: " << ret;
-      return 2;
-  }
+    if (avcodec_open2(ffmpegctx->codec_ctx, ffmpegctx->codec, nullptr) < 0) {
+        std::cerr << "Av codec open error: " << ret;
+        return 2;
+    }
 
-  ffmpegctx->pkt = av_packet_alloc();
+    ffmpegctx->pkt = av_packet_alloc();
 
     /* Allocate space for frame decoder */
     ffmpegctx->decframe = av_frame_alloc();
 
     /* Print video info */
-  cout
-      << "format: " << ffmpegctx->input_ctx->iformat->name << endl
-      << "codec: "  << ffmpegctx->codec->name << endl
-      << "size:   " << ffmpegctx->stream->codecpar->width << 'x' << ffmpegctx->stream->codecpar->height << endl
-      << "fps:    " << av_q2d(ffmpegctx->stream->r_frame_rate) << " [fps]" << endl
-      << "length: " << av_rescale_q(ffmpegctx->stream->duration, ffmpegctx->stream->time_base, {1,1000}) / 1000. << " [sec]" << endl
-      << "pixfmt: " << av_get_pix_fmt_name((AVPixelFormat)ffmpegctx->stream->codecpar->format) << endl
-      << "frame:  " << ffmpegctx->stream->nb_frames << endl
-      << flush;
-  
-  return 0;
+    cout
+        << "format: " << ffmpegctx->input_ctx->iformat->name << endl
+        << "codec: "  << ffmpegctx->codec->name << endl
+        << "size:   " << ffmpegctx->stream->codecpar->width << 'x' << ffmpegctx->stream->codecpar->height << endl
+        << "fps:    " << av_q2d(ffmpegctx->stream->r_frame_rate) << " [fps]" << endl
+        << "length: " << av_rescale_q(ffmpegctx->stream->duration, ffmpegctx->stream->time_base, {1,1000}) / 1000. << " [sec]" << endl
+        << "pixfmt: " << av_get_pix_fmt_name((AVPixelFormat)ffmpegctx->stream->codecpar->format) << endl
+        << "frame:  " << ffmpegctx->stream->nb_frames << endl
+        << flush;
+    
+    return 0;
 }
 
 /**
@@ -384,17 +384,17 @@ int main(int argc, char *argv[])
         /* Detect quit attempt or button press */
         while (SDL_PollEvent(&sdlctx.event))
         {
-          switch (sdlctx.event.type) 
-          {
-              case SDL_KEYDOWN:
-              case SDL_QUIT:
-                  done = true;
-                  break;
-              default:
-                  break;
-          }
+            switch (sdlctx.event.type) 
+            {
+                case SDL_KEYDOWN:
+                case SDL_QUIT:
+                    done = true;
+                    break;
+                default:
+                    break;
+            }
         }
-
+        
         /* Decode next frame from file if there are any */
         ret = get_frame(&ffmpegctx);
         if (ret > 0)
