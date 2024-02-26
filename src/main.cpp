@@ -57,6 +57,14 @@ static const char characters[] = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()
 static const char* font_name = "SpaceMono-Regular.ttf";
 static const int tile_size = 4;
 static const float coeff = 256 / (float)(sizeof(characters) - 3);
+
+/**
+ * @brief Initializes Ffmpeg and prepares to decode a video stream
+ * 
+ * @param ffmpegctx pointer to mpeg context
+ * @param file_name video file name
+ * @return int 0 or error code
+ */
 static int init_ffmpeg(TFfmpegCtx* ffmpegctx, char* file_name)
 {
   int ret = 0;
@@ -135,6 +143,12 @@ static int init_ffmpeg(TFfmpegCtx* ffmpegctx, char* file_name)
   return 0;
 }
 
+/**
+ * @brief Initializes SDL, creates render, window and caches font
+ * 
+ * @param sdlctx pointer to SDL context
+ * @return int 0 or error code
+ */
 static int init_sdl(TSDLContext *sdlctx)
 {
     sdlctx->window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
@@ -156,6 +170,14 @@ static int init_sdl(TSDLContext *sdlctx)
                   
     return 0;
 }
+
+/**
+ * @brief Cleans up stuff upon termination of the programm
+ * 
+ * @param exitcode 
+ * @param sdlctx pointer to SDL context
+ * @param ffmpegctx pointer to FFMPEG context
+ */
 static void cleanup(int exitcode, TSDLContext *sdlctx, TFfmpegCtx* ffmpegctx)
 {
     /* De-init ffmpeg */
@@ -182,6 +204,15 @@ static void cleanup(int exitcode, TSDLContext *sdlctx, TFfmpegCtx* ffmpegctx)
     SDL_Quit();
     exit(exitcode);
 }
+
+/**
+ * @brief Updates window dimensions according to content
+ *          IMPORTANT: Scaling is hardcoded
+ * 
+ * @param fc_font pointer to cached SDL Font 
+ * @param stream Pointer to Ffmpeg video stream info
+ * @param window pointer to SDL window descriptor
+ */
 static void update_window_size(FC_Font* fc_font, AVStream* stream, SDL_Window *window)
 {
     const int winheight = (stream->codecpar->height) * 1.77;
@@ -191,6 +222,13 @@ static void update_window_size(FC_Font* fc_font, AVStream* stream, SDL_Window *w
         SDL_SetWindowSize(window, winwidth, winheight);
     }
 }
+
+/**
+ * @brief Attempts to decode next frame using Ffmpeg library
+ * 
+ * @param ffmpegctx pointer to ffmpeg context
+ * @return int 0 or error code
+ */
 static int get_frame(TFfmpegCtx* ffmpegctx)
 {
     int ret = 0;
@@ -246,6 +284,16 @@ static int get_frame(TFfmpegCtx* ffmpegctx)
     return 0;
 }
 
+/**
+ * @brief Takes a decoded video frame and converts it into an ASCII representation using SDL/SDL_ttf/SDL Font cache
+ *          IMPORTANT: Tiling of the image is hardcoded. Each tile is averaged to get an
+ *                      ASCII character to ouput
+ * 
+ * @param renderer pointer to SDL renderer
+ * @param fc_font pointer to cached SDL Font 
+ * @param frame pointer to decoded frame
+ * @param ascii_buffer buffer to store ASCII-coverted video lines
+ */
 static void handle_frame(SDL_Renderer *renderer, FC_Font* fc_font, AVFrame* frame, enum AVColorRange color_range, char* ascii_buffer)
 {
     /* Reset viewport */
