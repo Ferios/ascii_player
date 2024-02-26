@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.5)
 
 find_path(SDL2_ttf_INCLUDE_DIR
   NAMES SDL2/SDL_ttf.h
