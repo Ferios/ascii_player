@@ -31,7 +31,8 @@ include_directories("${SDL2_ttf_INCLUDE_DIR}/SDL2" SYSTEM)
 ################
 
 file(GLOB chord_SRC
-    "./src/main.cpp")
+    "./src/main.cpp"
+    "./src/SDL_FontCache.c")
 
 # Executables
 add_executable(ascii_player ${chord_SRC})
