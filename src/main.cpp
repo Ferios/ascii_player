@@ -56,11 +56,15 @@ typedef struct FfmpegContext
 static const char characters[] = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'.   ";
 static const char* font_name = "SpaceMono-Regular.ttf";
 static const int tile_size = 4;
+static const int font_size = 9;
+static const int ms_per_sec = 1000;
 static const int color_range_full = 256;
 static const int color_range_lim = 220;
 static const int color_range_lim_offs = 16;
+static const float win_height_modifier = 1.77;
 static const float div_full = color_range_full / (float)(sizeof(characters) - 3);
 static const float div_limited = color_range_lim / (float)(sizeof(characters) - 3);
+static const float line_height_mult = 1.75;
 
 /**
  * @brief Initializes Ffmpeg and prepares to decode a video stream
@@ -170,7 +174,7 @@ static int init_sdl(TSDLContext *sdlctx)
     }
     
     sdlctx->fc_font = FC_CreateFont();  
-    FC_LoadFont(sdlctx->fc_font, sdlctx->renderer, font_name, 9, FC_MakeColor(255,255,255,255), TTF_STYLE_NORMAL);
+    FC_LoadFont(sdlctx->fc_font, sdlctx->renderer, font_name, font_size, FC_MakeColor(255,255,255,255), TTF_STYLE_NORMAL);
                   
     return 0;
 }
@@ -219,8 +223,8 @@ static void cleanup(int exitcode, TSDLContext *sdlctx, TFfmpegCtx* ffmpegctx)
  */
 static void update_window_size(FC_Font* fc_font, AVStream* stream, SDL_Window *window)
 {
-    const int winheight = (stream->codecpar->height) * 1.77;
-    const int winwidth = (stream->codecpar->width / 4) * FC_GetWidth(fc_font, "%s", "c");
+    const int winheight = (stream->codecpar->height) * win_height_modifier;
+    const int winwidth = (stream->codecpar->width / tile_size) * FC_GetWidth(fc_font, "%s", "c");
     if (winwidth != WIDTH || winheight!= HEIGHT)
     {
         SDL_SetWindowSize(window, winwidth, winheight);
@@ -338,7 +342,7 @@ static void handle_frame(SDL_Renderer *renderer, FC_Font* fc_font, AVFrame* fram
         }
 
         /* Draw line by line to control lineheight */
-        FC_Draw(fc_font, renderer, 0, heightIdx * 1.75, "%s", ascii_buffer);
+        FC_Draw(fc_font, renderer, 0, heightIdx * line_height_mult, "%s", ascii_buffer);
     }
 
     /* Update viewport */
@@ -373,10 +377,10 @@ int main(int argc, char *argv[])
     }
     
     /* Calculate frame time */
-    const auto frametime = std::chrono::milliseconds(1000 / (int)av_q2d(ffmpegctx.stream->r_frame_rate));
+    const auto frametime = std::chrono::milliseconds(ms_per_sec / (int)av_q2d(ffmpegctx.stream->r_frame_rate));
 
     /* Allocate ASCII frame */
-    ascii_buffer = (char*)malloc(ffmpegctx.stream->codecpar->width / 4 + 1);
+    ascii_buffer = (char*)malloc(ffmpegctx.stream->codecpar->width / tile_size);
 
     /* Update window size now that we know content dimensions */
     update_window_size(sdlctx.fc_font, ffmpegctx.stream, sdlctx.window);
