@@ -56,7 +56,11 @@ typedef struct FfmpegContext
 static const char characters[] = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'.   ";
 static const char* font_name = "SpaceMono-Regular.ttf";
 static const int tile_size = 4;
-static const float coeff = 256 / (float)(sizeof(characters) - 3);
+static const int color_range_full = 256;
+static const int color_range_lim = 220;
+static const int color_range_lim_offs = 16;
+static const float div_full = color_range_full / (float)(sizeof(characters) - 3);
+static const float div_limited = color_range_lim / (float)(sizeof(characters) - 3);
 
 /**
  * @brief Initializes Ffmpeg and prepares to decode a video stream
@@ -318,15 +322,16 @@ static void handle_frame(SDL_Renderer *renderer, FC_Font* fc_font, AVFrame* fram
                                     line4[0] + line4[1] + line4[2] + line4[3]) / 
                                     (tile_size * tile_size);
 
-            /* Check if the color range is limited and translate to full */
+            /* Check if the color range is limited */
             if (color_range != AVCOL_RANGE_JPEG)
             {
-                const float luma_full = (tile_luma > 16) ? ((tile_luma - 16) / 220) * 255 : 0; 
-                character_index = round(luma_full / coeff);
+                /* Prevent negative values after averaging the tile */
+                const float luma_norm = (tile_luma > color_range_lim_offs) ? tile_luma - color_range_lim_offs: 0; 
+                character_index = round(luma_norm / div_limited);
             } 
             else
             {
-                character_index = round(tile_luma / coeff);
+                character_index = round(tile_luma / div_full);
             }
 
             ascii_buffer[cellId] = characters[character_index];
