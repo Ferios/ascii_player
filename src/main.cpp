@@ -112,14 +112,16 @@ static int init_ffmpeg(TFfmpegCtx* ffmpegctx, char* file_name)
     ffmpegctx->stream = ffmpegctx->input_ctx->streams[ffmpegctx->stream_idx];
     
     ffmpegctx->codec_ctx = avcodec_alloc_context3(ffmpegctx->codec);
-    if (!ffmpegctx->codec_ctx) {
+    if (!ffmpegctx->codec_ctx) 
+    {
         std::cout << "Error allocating codec context" << std::endl;
         avformat_free_context(ffmpegctx->input_ctx);
         return 1;
     }
 
     ret = avcodec_parameters_to_context(ffmpegctx->codec_ctx, ffmpegctx->stream->codecpar);
-    if (ret < 0) {
+    if (ret < 0) 
+    {
         std::cout << "Error setting codec context parameters: " << ret << std::endl;
         avcodec_free_context(&ffmpegctx->codec_ctx);
         avformat_free_context(ffmpegctx->input_ctx);
@@ -127,7 +129,8 @@ static int init_ffmpeg(TFfmpegCtx* ffmpegctx, char* file_name)
     }
 
     /* Open decoder context*/
-    if (avcodec_open2(ffmpegctx->codec_ctx, ffmpegctx->codec, nullptr) < 0) {
+    if (avcodec_open2(ffmpegctx->codec_ctx, ffmpegctx->codec, nullptr) < 0) 
+    {
         std::cerr << "Av codec open error: " << ret;
         return 2;
     }
@@ -245,7 +248,8 @@ static int get_frame(TFfmpegCtx* ffmpegctx)
     if (!ffmpegctx->end_of_stream) 
     {
         ret = av_read_frame(ffmpegctx->input_ctx, ffmpegctx->pkt);
-        if (ret < 0 && ret != AVERROR_EOF) {
+        if (ret < 0 && ret != AVERROR_EOF) 
+        {
             std::cerr << "read frame error: " << ret;
             return -1;
         }
@@ -269,7 +273,8 @@ static int get_frame(TFfmpegCtx* ffmpegctx)
     
     /* Decode packet and see if we have a frame */
     ret = avcodec_send_packet(ffmpegctx->codec_ctx, ffmpegctx->pkt);
-    if (ret < 0) {
+    if (ret < 0) 
+    {
         fprintf(stderr, "Error sending a packet for decoding\n");
         return -1;
     }
@@ -282,7 +287,8 @@ static int get_frame(TFfmpegCtx* ffmpegctx)
         av_packet_unref(ffmpegctx->pkt);
         return 1;
     }
-    else if (ret < 0) {
+    else if (ret < 0) 
+    {
         ffmpegctx->got_image = 0;
         fprintf(stderr, "Decoder error\n");
         return -1;
